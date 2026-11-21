@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Rank Tracker – ' + ${domain}">Rank Tracker</title>
+    <!-- Modern typography & Google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Top Navigation Header -->
+    <header class="top-header">
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                        <polyline points="16 7 22 7 22 13"></polyline>
+                    </svg>
+                </div>
+                <div class="brand-info">
+                    <span class="brand-name">Rank<strong>Tracker</strong></span>
+                    <span class="badge-domain" th:text="${domain}">example.com</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <span class="status-indicator">
+                    <span class="pulse-dot"></span> Live SearchAPI Sync
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Error Banner -->
+        <div class="banner error-banner" th:if="${error}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span th:text="${error}">Something went wrong fetching ranks.</span>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <section class="kpi-grid" th:if="${!rows.isEmpty()}">
+            <div class="kpi-card">
+                <span class="kpi-label">Tracked Keywords</span>
+                <span class="kpi-value" th:text="${rows.size()}">0</span>
+                <span class="kpi-subtext">Active searches</span>
+            </div>
+            <div class="kpi-card highlight-green">
+                <span class="kpi-label">Top 3 Rankings</span>
+                <span class="kpi-value" th:text="${rows.?[position != null and position <= 3].size()}">0</span>
+                <span class="kpi-subtext">Prime visibility</span>
+            </div>
+            <div class="kpi-card highlight-blue">
+                <span class="kpi-label">Top 10 Rankings</span>
+                <span class="kpi-value" th:text="${rows.?[position != null and position <= 10].size()}">0</span>
+                <span class="kpi-subtext">Page 1 dominance</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Positive Movers</span>
+                <span class="kpi-value" th:text="${rows.?[change != null and change.startsWith('▲')].size()}">0</span>
+                <span class="kpi-subtext text-up">Trending upwards</span>
+            </div>
+        </section>
+
+        <!-- Position Alerts -->
+        <section class="card alerts-card" th:if="${rows.?[alert != null].size() > 0}">
+            <div class="card-header">
+                <div class="section-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <h2>Key Ranking Alerts</h2>
+                </div>
+            </div>
+            <div class="alert-list">
+                <div class="alert-chip" th:each="row : ${rows}" th:if="${row.alert != null}">
+                    <span class="alert-kw" th:text="${row.keyword}">keyword</span>
+                    <span class="alert-text" th:text="${row.alert}">entered top 10</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Keyword & Search Bar Grid -->
+        <section class="card action-card">
+            <form class="add-keyword-form" th:action="@{/keywords}" method="post">
+                <div class="input-wrapper">
+                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="keyword" placeholder="Add search query (e.g. 'spring boot tutorial', 'online courses')..."
+                           maxlength="100" aria-label="Keyword" required autofocus>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Track Keyword
+                </button>
+            </form>
+        </section>
+
+        <!-- Main Keywords Table -->
+        <section class="card table-card">
+            <div class="card-header table-controls">
+                <div class="section-title">
+                    <h2>Monitored Positions</h2>
+                    <span class="badge" th:text="${rows.size()} + ' total'">0 total</span>
+                </div>
+                <div class="filter-box" th:if="${!rows.isEmpty()}">
+                    <input type="text" id="tableFilter" placeholder="Quick filter keywords..." aria-label="Filter keywords">
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${rows.isEmpty()}">
+                <div class="empty-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                </div>
+                <h3>No keywords being tracked yet</h3>
+                <p>Start monitoring your SEO footprint by adding target keywords above.</p>
+            </div>
+
+            <!-- Table of Ranks -->
+            <div class="table-responsive" th:if="${!rows.isEmpty()}">
+                <table id="keywordsTable">
+                    <thead>
+                    <tr>
+                        <th>Keyword Query</th>
+                        <th class="text-center">Google Position</th>
+                        <th class="text-right">Change</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${rows}">
+                        <td class="col-keyword">
+                            <span class="kw-text" th:text="${row.keyword}">spring boot tutorial</span>
+                        </td>
+                        <td class="text-center">
+                            <!-- Badge classes based on position range -->
+                            <span class="rank-badge"
+                                  th:classappend="${row.position != null and row.position <= 3} ? 'rank-top3' : (${row.position != null and row.position <= 10} ? 'rank-top10' : (${row.position != null and row.position <= 50} ? 'rank-top50' : 'rank-unranked'))"
+                                  th:text="${row.position == null} ? '100+' : '#' + ${row.position}">
+                                #7
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <span class="diff-tag"
+                                  th:classappend="${row.change != null and row.change.startsWith('▲')} ? 'diff-up' : (${row.change != null and (row.change.startsWith('▼') or row.change.startsWith('-'))} ? 'diff-down' : 'diff-neutral')"
+                                  th:text="${row.change}">
+                                ▲ 3
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Position Over Time Chart -->
+        <section class="card chart-card" th:if="${!days.isEmpty()}">
+            <div class="card-header">
+                <div class="section-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"></path>
+                        <path d="m19 9-5 5-4-4-3 3"></path>
+                    </svg>
+                    <h2>Position Trends Over Time</h2>
+                </div>
+                <span class="chart-hint">Higher points represent top 1-10 rankings</span>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="chart"></canvas>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- Chart.js and dynamic setup -->
+<th:block th:if="${!days.isEmpty()}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+    <script th:inline="javascript">
+        const days = /*[[${days}]]*/ [];
+        const lines = /*[[${lines}]]*/ {};
+
+        // Modern vibrant color palette for line charts
+        const colors = [
+            '#0ea5e9', '#6366f1', '#10b981', '#f59e0b',
+            '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'
+        ];
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        const datasets = Object.entries(lines).map(([keyword, positions], idx) => {
+            const color = colors[idx % colors.length];
+            return {
+                label: keyword,
+                data: positions,
+                borderColor: color,
+                backgroundColor: color + '15',
+                borderWidth: 2.2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: color,
+                tension: 0.35,
+                fill: false
+            };
+        });
+
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const gridColor = isDarkMode ? '#27272a' : '#f1f5f9';
+        const textColor = isDarkMode ? '#a1a1aa' : '#64748b';
+
+        new Chart(ctx, {
+            type: 'line',
+            data: { labels: days, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 10, boxHeight: 10, color: textColor, font: { family: 'Plus Jakarta Sans' } }
+                    },
+                    tooltip: {
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: #${ctx.parsed.y}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        reverse: true,
+                        min: 1,
+                        ticks: {
+                            precision: 0,
+                            color: textColor,
+                            callback: (val) => '#' + val
+                        },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</th:block>
+
+<!-- Client-side filter script -->
+<script>
+    const filterInput = document.getElementById('tableFilter');
+    if (filterInput) {
+        filterInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#keywordsTable tbody tr');
+            rows.forEach(row => {
+                const text = row.querySelector('.kw-text').innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    }
+</script>
+</body>
+</html>
