@@ -1,4 +1,4 @@
-# 🚀 RankTracker – Automated Google SERP Rank Tracking & Analytics Platform
+# 🚀 RankFinder – Automated Google SERP Rank Tracking & Analytics Platform
 
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.4%2B-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -11,7 +11,7 @@
 ---
 
 ## 📌 Table of Contents
-- [What is RankTracker?](#-what-is-ranktracker)
+- [What is RankFinder?](#-what-is-rankfinder)
 - [Key Features](#-key-features)
 - [Tech Stack & Architecture](#-tech-stack--architecture)
 - [Empirical Benchmark & Evaluation Results](#-empirical-benchmark--evaluation-results)
@@ -24,9 +24,9 @@
 
 ---
 
-## 💡 What is RankTracker?
+## 💡 What is RankFinder?
 
-Tracking Google organic rankings manually is slow, error-prone, and non-scalable. **RankTracker** solves this by automating:
+Tracking Google organic rankings manually is slow, error-prone, and non-scalable. **RankFinder** solves this by automating:
 1. **Targeted SERP Lookups**: Integrates with Google search engines via `SearchApi` to fetch the top 100 organic search results per keyword.
 2. **Domain Matching**: Automatically isolates your root domain and all subdomains (e.g. `embarkx.com` and `*.embarkx.com`) across 100 SERP entries.
 3. **Smart Deduplication & Cache Gate**: Protects API rate limits and costs by enforcing a same-day verification check—preventing redundant third-party API calls on the same date.
