@@ -166,8 +166,4 @@ This application is ready to deploy on **Render** (or Railway / Koyeb) on their 
 
 ---
 
-## 📄 Resume Bullet Points (Laszlo Bock’s XYZ Formula)
 
-* **Accomplished real-time SERP rank tracking across 50 evaluated search queries as measured by a 100% position detection accuracy and a 0.92 ms average processing latency (1.66 ms P95) by engineering a Spring Boot 3 and Java 21 pipeline with RESTClient stream parsing and H2/SQL persistence.**
-* **Accomplished zero-redundancy external API consumption as measured by a 100% elimination of duplicate third-party lookups and a 0.23 ms same-day query verification gate by designing a database-level caching and deduplication pre-check layer in Spring Boot.**
-* **Accomplished high-throughput SEO intelligence capable of sustaining 907 queries/second as measured by automated daily rank change alerts and interactive client-side keyword filtering by building a full-stack dashboard using Thymeleaf, Chart.js, and Spring JDBC.**
